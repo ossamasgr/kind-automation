@@ -8,8 +8,8 @@ Before running the script, ensure the following prerequisites are met:
 - **Docker Installation:** Docker must be installed on your machine. Docker allows you to create, deploy, and run applications in containers, making it easier to manage dependencies and environments.
 - **Ubuntu Machine:** The script is intended to be run on a machine with Ubuntu operating system. This ensures compatibility and smooth
 
-## running of the script.
-Before Running the Script
+## Before Running the Script.
+
 Certain files need to be modified to customize the script according to your environment and requirements.
 
 ### Modifying external-ips.yaml
@@ -25,7 +25,6 @@ Replace [YOUR_PUBLIC_IP_1]  with the public IP you wish to use. If only one IP i
 
 ### Modifying issuer.yaml
 Find the file cert-manager/issuer.yaml.
-In the apiVersion: cert-manager.io/v1 section, locate the following fields:
 
 ```yaml
 email: [YOUR_EMAIL]
