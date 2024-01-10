@@ -1,4 +1,6 @@
 #!/bin/bash
+# Store the directory of the script in a variable
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Function to check if the last command succeeded
 check_success() {
@@ -58,12 +60,15 @@ echo 'Deploying Ingress Controller...'
 controller_tag=$(curl -s https://api.github.com/repos/kubernetes/ingress-nginx/releases/latest | grep tag_name | cut -d '"' -f 4)
 wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/${controller_tag}/deploy/static/provider/baremetal/deploy.yaml -O nginx-ingress-controller-deploy.yaml
 kubectl apply -f nginx-ingress-controller-deploy.yaml
+kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+
+sleep 5
+kubectl -n ingress-nginx patch deployment/ingress-nginx-controller --patch "$(cat ${SCRIPT_DIR}/ingress-controller/master-node-tolerations.yaml)"
 wait_for_pods ingress-nginx
 check_success 'Ingress Controller deployment'
 
 echo 'Configuring Ingress...'
-kubectl -n ingress-nginx patch svc ingress-nginx-controller --patch "$(cat ingress-controller/external-ips.yaml)"
-kubectl -n ingress-nginx patch deployment/ingress-nginx-controller --patch "$(cat ingress-controller/master-node-tolerations.yaml)"
+kubectl -n ingress-nginx patch svc ingress-nginx-controller --patch "$(cat ${SCRIPT_DIR}/ingress-controller/external-ips.yaml)"
 check_success 'Ingress configuration'
 
 echo 'Installing Cert-Manager...'
@@ -71,7 +76,7 @@ helm install cert-manager jetstack/cert-manager --namespace cert-manager --creat
 wait_for_pods cert-manager
 check_success 'Cert-Manager installation'
 
-kubectl apply -f issuer.yaml
+kubectl apply -f ${SCRIPT_DIR}/cert-manager/issuer.yaml
 check_success 'Issuer application'
 
 echo 'All tasks completed successfully.'
