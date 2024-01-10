@@ -40,7 +40,7 @@ kind --version
 check_success 'Kind version check'
 
 echo 'Creating Kubernetes cluster...'
-kind create cluster --config=config.yml
+kind create cluster --config=config.yaml
 check_success 'Cluster creation'
 
 echo 'Downloading and installing Kubectl...'
