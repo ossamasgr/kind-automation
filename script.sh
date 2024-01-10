@@ -60,7 +60,6 @@ echo 'Deploying Ingress Controller...'
 controller_tag=$(curl -s https://api.github.com/repos/kubernetes/ingress-nginx/releases/latest | grep tag_name | cut -d '"' -f 4)
 wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/${controller_tag}/deploy/static/provider/baremetal/deploy.yaml -O nginx-ingress-controller-deploy.yaml
 kubectl apply -f nginx-ingress-controller-deploy.yaml
-kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 
 sleep 5
 kubectl -n ingress-nginx patch deployment/ingress-nginx-controller --patch "$(cat ${SCRIPT_DIR}/ingress-controller/master-node-tolerations.yaml)"
@@ -72,6 +71,9 @@ kubectl -n ingress-nginx patch svc ingress-nginx-controller --patch "$(cat ${SCR
 check_success 'Ingress configuration'
 
 echo 'Installing Cert-Manager...'
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+
 helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true
 wait_for_pods cert-manager
 check_success 'Cert-Manager installation'
